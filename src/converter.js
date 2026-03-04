@@ -309,7 +309,7 @@ const SPACING_PREFIXES = {
  * Negative pixel values are only supported for margin prefixes (starting with 'm').
  */
 function convertSpacingValue(prefix, value) {
-    if (value === '0' || value === '0px') return `${prefix}-0`;
+    if (value === '0' || value === '0px' || value === '0rem') return `${prefix}-0`;
     if (value === 'auto') return `${prefix}-auto`;
     // Negative pixel values (margin only: ma, mt, mr, mb, ml, mx, my, ms, me)
     const negPxMatch = value.match(/^-(\d+(?:\.\d+)?)px$/);
@@ -318,10 +318,22 @@ function convertSpacingValue(prefix, value) {
         const n = px / 4;
         if (Number.isInteger(n) && n >= 1 && n <= 16) return `${prefix}-n${n}`;
     }
+    const negRemMatch = value.match(/^-(\d+(?:\.\d+)?)rem$/);
+    if (negRemMatch && prefix[0] === 'm') {
+        const rem = parseFloat(negRemMatch[1]);
+        const n = rem * 4;
+        if (Number.isInteger(n) && n >= 1 && n <= 16) return `${prefix}-n${n}`;
+    }
     const pxMatch = value.match(/^(\d+(?:\.\d+)?)px$/);
     if (pxMatch) {
         const px = parseFloat(pxMatch[1]);
         const n = px / 4;
+        if (Number.isInteger(n) && n >= 0 && n <= 16) return `${prefix}-${n}`;
+    }
+    const remMatch = value.match(/^(\d+(?:\.\d+)?)rem$/);
+    if (remMatch) {
+        const rem = parseFloat(remMatch[1]);
+        const n = rem * 4;
         if (Number.isInteger(n) && n >= 0 && n <= 16) return `${prefix}-${n}`;
     }
     return null;
