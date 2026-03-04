@@ -13,8 +13,8 @@ const CSS_TO_VUETIFY = {
         'normal': 'font-weight-regular',
         'medium': 'font-weight-medium',
         '500': 'font-weight-medium',
-        'semibold': 'font-weight-bold',
-        '600': 'font-weight-bold',
+        'semibold': 'font-weight-semibold',
+        '600': 'font-weight-semibold',
         'bold': 'font-weight-bold',
         '700': 'font-weight-bold',
         'black': 'font-weight-black',
@@ -46,6 +46,8 @@ const CSS_TO_VUETIFY = {
     'white-space': {
         'normal': 'text-wrap',
         'nowrap': 'text-no-wrap',
+        'pre': 'text-pre',
+        'pre-line': 'text-pre-line',
         'pre-wrap': 'text-pre-wrap',
     },
     'word-break': {
@@ -157,6 +159,7 @@ const CSS_TO_VUETIFY = {
         '1': 'flex-shrink-1',
     },
     'width': {
+        '0': 'w-0',
         '25%': 'w-25',
         '33%': 'w-33',
         '50%': 'w-50',
@@ -166,10 +169,13 @@ const CSS_TO_VUETIFY = {
         'auto': 'w-auto',
     },
     'height': {
+        '0': 'h-0',
         '25%': 'h-25',
         '50%': 'h-50',
         '75%': 'h-75',
         '100%': 'h-100',
+        '100vh': 'h-screen',
+        '100dvh': 'h-screen',
         'auto': 'h-auto',
     },
     'cursor': {
@@ -200,12 +206,79 @@ const CSS_TO_VUETIFY = {
     },
     'border-radius': {
         '0': 'rounded-0',
-        '4px': 'rounded-sm',
-        '8px': 'rounded',
-        '16px': 'rounded-lg',
+        '2px': 'rounded-sm',
+        '4px': 'rounded',
+        '8px': 'rounded-lg',
         '24px': 'rounded-xl',
         '50%': 'rounded-circle',
         '9999px': 'rounded-pill',
+    },
+    'order': {
+        '-1': 'order-first',
+        '0': 'order-0',
+        '1': 'order-1',
+        '2': 'order-2',
+        '3': 'order-3',
+        '4': 'order-4',
+        '5': 'order-5',
+        '6': 'order-6',
+        '7': 'order-7',
+        '8': 'order-8',
+        '9': 'order-9',
+        '10': 'order-10',
+        '11': 'order-11',
+        '12': 'order-12',
+        '13': 'order-last',
+    },
+    'opacity': {
+        '0': 'opacity-0',
+        '0.1': 'opacity-10',
+        '0.2': 'opacity-20',
+        '0.3': 'opacity-30',
+        '0.4': 'opacity-40',
+        '0.5': 'opacity-50',
+        '0.6': 'opacity-60',
+        '0.7': 'opacity-70',
+        '0.8': 'opacity-80',
+        '0.9': 'opacity-90',
+        '1': 'opacity-100',
+    },
+    'pointer-events': {
+        'none': 'pointer-events-none',
+        'auto': 'pointer-events-auto',
+    },
+    'top': { '0': 'top-0' },
+    'right': { '0': 'right-0' },
+    'bottom': { '0': 'bottom-0' },
+    'left': { '0': 'left-0' },
+    'border-style': {
+        'solid': 'border-solid',
+        'dashed': 'border-dashed',
+        'dotted': 'border-dotted',
+        'double': 'border-double',
+        'none': 'border-none',
+    },
+    'justify-items': {
+        'flex-start': 'justify-items-start',
+        'start': 'justify-items-start',
+        'flex-end': 'justify-items-end',
+        'end': 'justify-items-end',
+        'center': 'justify-items-center',
+        'stretch': 'justify-items-stretch',
+    },
+    'flex': {
+        '1 1 auto': 'flex-fill',
+        '1 0 auto': 'flex-1-0',
+        '0 1 auto': 'flex-0-1',
+        '0 0 auto': 'flex-0-0',
+        '1 1 100%': 'flex-1-1-100',
+        '1 0 100%': 'flex-1-0-100',
+        '0 1 100%': 'flex-0-1-100',
+        '0 0 100%': 'flex-0-0-100',
+        '1 1 0': 'flex-1-1-0',
+        '1 0 0': 'flex-1-0-0',
+        '0 1 0': 'flex-0-1-0',
+        '0 0 0': 'flex-0-0-0',
     },
 };
 
@@ -216,20 +289,35 @@ const SPACING_PREFIXES = {
     'margin-right': 'mr',
     'margin-bottom': 'mb',
     'margin-left': 'ml',
+    'margin-inline-start': 'ms',
+    'margin-inline-end': 'me',
     'padding': 'p',
     'padding-top': 'pt',
     'padding-right': 'pr',
     'padding-bottom': 'pb',
     'padding-left': 'pl',
+    'padding-inline-start': 'ps',
+    'padding-inline-end': 'pe',
+    'gap': 'ga',
+    'row-gap': 'gr',
+    'column-gap': 'gc',
 };
 
 /**
  * Convert a single spacing value to a Vuetify spacing class.
  * Returns the class name or null if the value cannot be converted.
+ * Negative pixel values are only supported for margin prefixes (starting with 'm').
  */
 function convertSpacingValue(prefix, value) {
     if (value === '0' || value === '0px') return `${prefix}-0`;
     if (value === 'auto') return `${prefix}-auto`;
+    // Negative pixel values (margin only: ma, mt, mr, mb, ml, mx, my, ms, me)
+    const negPxMatch = value.match(/^-(\d+(?:\.\d+)?)px$/);
+    if (negPxMatch && prefix[0] === 'm') {
+        const px = parseFloat(negPxMatch[1]);
+        const n = px / 4;
+        if (Number.isInteger(n) && n >= 1 && n <= 16) return `${prefix}-n${n}`;
+    }
     const pxMatch = value.match(/^(\d+(?:\.\d+)?)px$/);
     if (pxMatch) {
         const px = parseFloat(pxMatch[1]);
@@ -240,12 +328,26 @@ function convertSpacingValue(prefix, value) {
 }
 
 /**
- * Convert a margin/padding shorthand value (1–4 values) to Vuetify spacing classes.
+ * Convert a margin/padding/gap shorthand value to Vuetify spacing classes.
  * Returns an array of class names, or null if the value cannot be converted.
  */
 function convertSpacing(prop, value) {
     const dir = SPACING_PREFIXES[prop];
-    // Directional properties (e.g. margin-top) use a single value
+    // gap shorthand: 1 value → ga, 2 values → gr + gc
+    if (prop === 'gap') {
+        const parts = value.trim().split(/\s+/);
+        if (parts.length === 1) {
+            const cls = convertSpacingValue('ga', parts[0]);
+            return cls ? [cls] : null;
+        }
+        if (parts.length === 2) {
+            const r = convertSpacingValue('gr', parts[0]);
+            const c = convertSpacingValue('gc', parts[1]);
+            if (r && c) return [r, c];
+        }
+        return null;
+    }
+    // Directional properties (e.g. margin-top, row-gap) use a single value
     if (prop !== 'margin' && prop !== 'padding') {
         const cls = convertSpacingValue(dir, value);
         return cls ? [cls] : null;
