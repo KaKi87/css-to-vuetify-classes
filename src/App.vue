@@ -19,7 +19,10 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { EditorView, basicSetup } from 'codemirror';
-import { EditorState } from '@codemirror/state';
+import { EditorState, Prec } from '@codemirror/state';
+import { keymap } from '@codemirror/view';
+import { indentWithTab } from '@codemirror/commands';
+import { indentUnit } from '@codemirror/language';
 import { css } from '@codemirror/lang-css';
 import { html } from '@codemirror/lang-html';
 import { oneDark } from '@codemirror/theme-one-dark';
@@ -45,6 +48,8 @@ onMounted(() => {
             basicSetup,
             css(),
             oneDark,
+            indentUnit.of('    '),
+            Prec.high(keymap.of([indentWithTab])),
             EditorView.updateListener.of(update => {
                 if (update.docChanged) {
                     const htmlText = convert(update.state.doc.toString());
