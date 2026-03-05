@@ -63,12 +63,9 @@ const CSS_TO_VUETIFY = {
         'block': 'd-block',
         'flex': 'd-flex',
         'inline-flex': 'd-inline-flex',
-        'grid': 'd-grid',
-        'inline-grid': 'd-inline-grid',
         'table': 'd-table',
         'table-cell': 'd-table-cell',
         'table-row': 'd-table-row',
-        'contents': 'd-contents',
     },
     'float': {
         'none': 'float-none',
